@@ -29,41 +29,14 @@ lambdas = [0.01, 0.1, 1, 10, 100]
 mse = make_scorer(mean_squared_error)
 solution = []
 
-# Test with just splitting data for comparison:
-X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=0)
-clf = Ridge(1)
-clf.fit(X_train, y_train)
-#print(clf.score(X_test, y_test))
-
-# Try with linear regression as well:
-reg = LinearRegression().fit(X_train, y_train)
-#print(reg.score(X_test, y_test))
-
 # Do 10-fold cross validation and calculate average RMSE for each lambda:
-clf = Ridge()
+clf = Ridge(fit_intercept=False)
 for l in lambdas:
-    #print("lambda =", l, ":")
     clf.set_params(alpha=l)
-    #R2s = cross_val_score(clf, x, y, cv=folds)
-    #MSEs = cross_val_score(clf, x, y, cv=folds, scoring=mse)
     cv_results = cross_validate(clf, x, y, cv=folds, scoring=mse, return_estimator=True)
     
-    #print("Coefficients:")
-    #for model in cv_results['estimator']:
-        #print(model.coef_)
-    
-    #print("Test MSEs:")
     MSEs = cv_results['test_score']
-    
     RMSEs = np.sqrt(MSEs)
-    #print("MSEs:", MSEs)
-    #print("RMSEs:", RMSEs)
-    
-    #print("Average RMSE:", RMSEs.mean())
-    print(RMSEs.mean())
-    #print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-    #print()
-    
     solution.append(RMSEs.mean())
 
-np.savetxt(output_file, solution, fmt='%.4f')
+np.savetxt(output_file, solution, fmt='%.8f')
